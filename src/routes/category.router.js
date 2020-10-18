@@ -4,6 +4,8 @@ const router = express.Router();
 const {
   createCategory,
   getCategories,
+  updateCategory,
+  deleteCategories
 } = require("../controllers/category.controller");
 const shortid = require("shortid");
 const multer = require("multer");
@@ -19,12 +21,13 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 router.post(
-"/category/create", 
-requireLogin, 
-adminMidleware, 
-upload.single("categoryImage"), 
-createCategory
+  "/category/create",
+  requireLogin,
+  adminMidleware,
+  upload.single("categoryImage"),
+  createCategory
 );
-
+router.post("/category/update", upload.array("categoryImage"), updateCategory)
+router.post("/category/delete", deleteCategories)
 router.get("/category/getcategory", getCategories);
 module.exports = router;

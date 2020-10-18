@@ -5,7 +5,7 @@ exports.requireLogin = (req, res, next) => {
     const user = jwt.verify(token, "abc");
     req.user = user;
   } else {
-    return res.status(400).json({ message: "yêu cầu xác thực" });
+    return res.status(400).json({ message: "yêu cầu xác thực" }); 
   }
   next();
 };
@@ -15,7 +15,7 @@ exports.userMidleware = (req, res, next) => {
       .status(400)
       .json({ message: "Chỉ có người dùng mới được truy cập" });
   }
-  next();
+  next(); 
 };
 exports.adminMidleware = (req, res, next) => {
   if (req.user.role !== "admin") {

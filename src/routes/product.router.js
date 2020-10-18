@@ -3,7 +3,7 @@ const router = express.Router();
 const path = require("path");
 const { requireLogin, adminMidleware } = require("../common");
 
-const { createProduct } = require("../controllers/product.controller");
+const { createProduct, getProductBySlug } = require("../controllers/product.controller");
 const {
   createCategory,
   getCategories,
@@ -27,6 +27,7 @@ router.post(
   upload.array("productImage"),
   createProduct
 );
+router.get("/products/:slug", getProductBySlug);
 
 //router.get("/category/getcategory", getCategories);
 module.exports = router;

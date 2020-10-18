@@ -7,6 +7,7 @@ const adminRoutes = require("./routes/admin/auth.router");
 const categoryRoutes = require("./routes/category.router");
 const productRouters = require("./routes/product.router");
 const cartRouters = require("./routes/cart.router");
+const initialDataRouters = require("./routes/admin/initialData.router");
 const cors = require("cors")
 const path = require("path");
 const app = express();
@@ -29,6 +30,7 @@ app.use("/api", adminRoutes);
 app.use("/api", categoryRoutes);
 app.use("/api", productRouters);
 app.use("/api", cartRouters);
+app.use("/api", initialDataRouters)
 app.listen(process.env.PORT, () => {
   console.log(`server running ${process.env.PORT}`);
 });
