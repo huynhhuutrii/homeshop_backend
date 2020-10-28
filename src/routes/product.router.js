@@ -6,16 +6,13 @@ const { requireLogin, adminMidleware } = require("../common");
 const {
   createProduct,
   getProductBySlug,
-  review,
+  addReview,
   getDetailProduct,
   getRandomProduct,
   getNewProductList,
   deleteReview,
+  updateReview
 } = require("../controllers/product.controller");
-const {
-  createCategory,
-  getCategories,
-} = require("../controllers/category.controller");
 const shortid = require("shortid");
 const multer = require("multer");
 
@@ -38,9 +35,10 @@ router.post(
 router.get("/products/:slug", getProductBySlug);
 router.get("/product/random", getRandomProduct);
 router.get("/product/new", getNewProductList);
-router.put("/product/review", requireLogin, review);
+router.put("/product/review/add", requireLogin, addReview);
 router.get("/product/detail/:id", getDetailProduct);
 router.put("/product/review/delete", deleteReview);
+router.patch('/product/review/update', updateReview);
 
 //router.get("/category/getcategory", getCategories);
 module.exports = router;

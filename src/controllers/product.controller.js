@@ -2,6 +2,8 @@ const Product = require("../models/product.model");
 const slugify = require("slugify");
 const shortid = require("shortid");
 const Category = require("../models/category.model");
+const { findOneAndUpdate } = require("../models/product.model");
+const { search } = require("../routes/auth.router");
 exports.getDetailProduct = (req, res) => {
   const { id } = req.params;
   Product.findOne({ _id: id })
@@ -15,12 +17,45 @@ exports.getDetailProduct = (req, res) => {
       }
     });
 };
+exports.updateReview = async (req, res) => {
+  const { idReview, idProduct, data } = req.body
+  let product = await Product.findOne({ _id: idProduct });
+  let updateReviews = product.reviews;
+  let index = updateReviews.findIndex(x => x._id == idReview);
+  updateReviews[index].content = data;
+  let result = await Product.findOneAndUpdate(
+    { _id: idProduct },
+    { $set: { reviews: updateReviews } },
+    { new: true }
+  );
+  return res.status(200).json({result})
+}
+exports.searchProduct = async (req, res) => {
+  const { key } = req.body;
+  searchResult = await Product.find({
+    name: { $regex: key, $options: "$i" }
+  });
+  return res.status(200).json({
+    searchResult
+  })
+}
 exports.deleteReview = (req, res) => {
-  const { reviewID } = req.body;
-
-  Product.findOne({ "reviews._id": reviewID }).exec((err, review) => {
-    if (review) {
-      res.status(200).json({ review });
+  const { idReview, idProduct } = req.body;
+  Product.findByIdAndUpdate(
+    {
+      _id: idProduct,
+    },
+    {
+      $pull: { reviews: { _id: idReview } },
+    },{new:true}
+  ).exec((err, product) => {
+    if (err) {
+      return res.status(400).json({ err });
+    }
+    if (product) {
+      res.status(200).json({
+        product,
+      });
     }
   });
 };
@@ -57,7 +92,7 @@ exports.getRandomProduct = (req, res) => {
       }
     });
 };
-exports.review = (req, res) => {
+exports.addReview = (req, res) => {
   const { id, comment, stars } = req.body;
   const reviewObject = {
     userID: req.user._id,
