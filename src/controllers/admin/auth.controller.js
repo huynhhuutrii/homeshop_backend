@@ -1,16 +1,17 @@
 const User = require("../../models/user.model");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-exports.register =  (req, res) => {
+exports.register = (req, res) => {
   User.findOne({ email: req.body.email }).exec(async (err, user) => {
     if (user) {
       return res.status(400).json({
         message: "user ivalid",
       });
     }
-    const { username, email, password } = req.body;
+    const { name, username, email, password } = req.body;
     const hash_password = await bcrypt.hash(password, 10);
-    const newUser = new User({ 
+    const newUser = new User({
+      name,
       username,
       email,
       hash_password,
@@ -35,12 +36,11 @@ exports.login = (req, res) => {
     if (err) return res.status(400).json({ error });
     if (user) {
       if (user.authenticate(req.body.password) && user.role == "admin") {
-        
         const token = jwt.sign({ _id: user._id, role: user.role }, "abc", {
           expiresIn: "2d",
         });
         const { _id, username, email, role } = user;
-        res.cookie("token", token, {expiresIn:"2h"})
+        res.cookie("token", token, { expiresIn: "2h" });
         res.status(200).json({
           token,
           user: {
@@ -63,7 +63,6 @@ exports.login = (req, res) => {
 exports.logout = (req, res) => {
   res.clearCookie("token");
   res.status(200).json({
-    message: "Đăng xuất thành công"
-  })
-
-}
+    message: "Đăng xuất thành công",
+  });
+};

@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const userShema = new mongoose.Schema(
   {
+    name: {
+      type: String,
+      required: true,
+    },
     username: {
       type: String,
       required: true,
@@ -21,7 +25,7 @@ const userShema = new mongoose.Schema(
     role: {
       type: String,
       enum: ["user", "admin"],
-      defautl: "admin",
+      defautl: "user",
     },
   },
   { timestamps: true }

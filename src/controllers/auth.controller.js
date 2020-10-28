@@ -8,15 +8,15 @@ exports.register = (req, res) => {
         message: "user ivalid",
       });
     }
-    const { username, email, password } = req.body;
+    const { name, username, email, password } = req.body;
     const hash_password = await bcrypt.hash(password, 10);
     const newUser = new User({
+      name,
       username,
       email,
       hash_password,
-      role: "user",
     });
-    
+
     newUser.save((err, data) => {
       if (err) {
         return res.status(400).json({

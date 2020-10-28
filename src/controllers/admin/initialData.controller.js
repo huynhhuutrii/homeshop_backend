@@ -15,6 +15,7 @@ function createCagories(categories, parentID = null) {
       name: item.name,
       slug: item.slug,
       parentID: item.parentID,
+      type: item.type,
       children: createCagories(categories, item._id),
     });
   }

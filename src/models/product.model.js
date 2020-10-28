@@ -26,12 +26,21 @@ const productSchema = new mongoose.Schema(
     },
     offer: { type: Number },
     productImages: [{ img: { type: String } }],
+
     reviews: [
       {
         userID: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "User",
-          review: String,
+        },
+        review: {
+          type: String,
+          required: true,
+        },
+        rating: {
+          type: Number,
+          required: true,
+          default: 0,
         },
       },
     ],

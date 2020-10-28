@@ -3,7 +3,15 @@ const router = express.Router();
 const path = require("path");
 const { requireLogin, adminMidleware } = require("../common");
 
-const { createProduct, getProductBySlug } = require("../controllers/product.controller");
+const {
+  createProduct,
+  getProductBySlug,
+  review,
+  getDetailProduct,
+  getRandomProduct,
+  getNewProductList,
+  deleteReview,
+} = require("../controllers/product.controller");
 const {
   createCategory,
   getCategories,
@@ -28,6 +36,11 @@ router.post(
   createProduct
 );
 router.get("/products/:slug", getProductBySlug);
+router.get("/product/random", getRandomProduct);
+router.get("/product/new", getNewProductList);
+router.put("/product/review", requireLogin, review);
+router.get("/product/detail/:id", getDetailProduct);
+router.put("/product/review/delete", deleteReview);
 
 //router.get("/category/getcategory", getCategories);
 module.exports = router;

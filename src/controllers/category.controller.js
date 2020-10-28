@@ -1,6 +1,6 @@
 const Category = require("../models/category.model");
 const slugify = require("slugify");
-const { updateMany } = require("../models/category.model");
+const shortId = require("shortid");
 function createCagories(categories, parentID = null) {
   const listCategory = [];
   let category;
@@ -21,10 +21,18 @@ function createCagories(categories, parentID = null) {
   }
   return listCategory;
 }
-exports.deleteCategories = (req, res) => {
-  res.status(200).json({
-    body: req.body
-  })
+exports.deleteCategories = async (req, res) => {
+  const { ids } = req.body.payload;
+  const deleteCategories = [];
+  for (let i = 0; i < ids.length; i++) {
+    const deleteCategory = await Category.findOneAndDelete({ _id: ids[i]._id });
+    deleteCategories.push(deleteCategory)
+  }
+  if (deleteCategories.length == ids.length) {
+    res.status(201).json({ message: "đã xóa danh mục" })
+  } else {
+    res.status(400).json({ message: "xóa danh mục thất bại" })
+  }
 }
 exports.updateCategory = async (req, res) => {
   const { _id, name, parentID, type } = req.body;
@@ -58,7 +66,7 @@ exports.updateCategory = async (req, res) => {
 exports.createCategory = (req, res) => {
   const categoryObject = {
     name: req.body.name,
-    slug: slugify(req.body.name),
+    slug: `${shortId.generate()}-${slugify(req.body.name)}`,
   };
   if (req.body.parentID) {
     categoryObject.parentID = req.body.parentID;
