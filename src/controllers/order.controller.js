@@ -1,4 +1,4 @@
-const Order = require("../models/order.model");
+const Order = require('../models/order.model');
 exports.order = (req, res) => {
   const {
     receiver,
@@ -7,8 +7,9 @@ exports.order = (req, res) => {
     address,
     note,
     cartItems,
-    totalPrice } = req.body;
-  console.log(cartItems)
+    totalPrice,
+  } = req.body;
+
   const newCart = [];
   if (cartItems.length > 0) {
     cartItems.map((item) => {
@@ -17,8 +18,8 @@ exports.order = (req, res) => {
         name: item.name,
         quantity: item.quantity,
         price: item.price,
-      })
-    })
+      });
+    });
   }
   const newOrder = new Order({
     user: req.user._id,
@@ -26,24 +27,22 @@ exports.order = (req, res) => {
     phone,
     email,
     address,
-    status: "Chưa thanh toán",
+    status: 'Chưa thanh toán',
     note,
     cartItems: newCart,
-    totalPrice
-  })
+    totalPrice,
+  });
   newOrder.save((err, order) => {
     if (err) {
-      console.log(err)
       return res.status(400).json({
-        err: "có lỗi xảy ra"
-      })
+        err: 'có lỗi xảy ra',
+      });
     } else {
       if (order) {
         return res.status(201).json({
-          newOrder
-        })
+          newOrder,
+        });
       }
     }
-  })
-
-}
+  });
+};

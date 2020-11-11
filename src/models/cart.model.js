@@ -1,12 +1,14 @@
-const mongoose = require("mongoose");
+//collection này bỏ ko cần ghi
+const mongoose = require('mongoose');
+
 const cartSchema = new mongoose.Schema(
   {
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     cartItems: [
       {
         product: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "Product",
+          ref: 'Product',
           required: true,
         },
         quantity: { type: Number, default: 1, required: true },
@@ -19,4 +21,4 @@ const cartSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-module.exports = mongoose.model("Cart", cartSchema);
+module.exports = mongoose.model('Cart', cartSchema);

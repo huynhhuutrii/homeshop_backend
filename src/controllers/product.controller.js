@@ -1,13 +1,21 @@
-const Product = require("../models/product.model");
-const slugify = require("slugify");
-const shortid = require("shortid");
-const Category = require("../models/category.model");
-const { findOneAndUpdate } = require("../models/product.model");
-const { search } = require("../routes/auth.router");
+const Product = require('../models/product.model');
+const slugify = require('slugify');
+const shortid = require('shortid');
+const Category = require('../models/category.model');
+exports.getAllProduct = async (req, res) => {
+  Product.find({}).exec((err, products) => {
+    if (err) {
+      return res.status(400).json({ err });
+    }
+    if (products) {
+      return res.status(200).json({ products });
+    }
+  });
+};
 exports.getDetailProduct = (req, res) => {
   const { id } = req.params;
   Product.findOne({ _id: id })
-    .populate("reviews.userID")
+    .populate('reviews.userID')
     .exec((err, data) => {
       if (err) return res.status(400).json({ err });
       if (data) {
@@ -18,27 +26,27 @@ exports.getDetailProduct = (req, res) => {
     });
 };
 exports.updateReview = async (req, res) => {
-  const { idReview, idProduct, data } = req.body
+  const { idReview, idProduct, data } = req.body;
   let product = await Product.findOne({ _id: idProduct });
   let updateReviews = product.reviews;
-  let index = updateReviews.findIndex(x => x._id == idReview);
-  updateReviews[index].content = data;
+  let index = updateReviews.findIndex((x) => x._id == idReview);
+  updateReviews[index].review = data;
   let result = await Product.findOneAndUpdate(
     { _id: idProduct },
     { $set: { reviews: updateReviews } },
     { new: true }
   );
-  return res.status(200).json({result})
-}
+  return res.status(200).json({ result });
+};
 exports.searchProduct = async (req, res) => {
   const { key } = req.body;
   searchResult = await Product.find({
-    name: { $regex: key, $options: "$i" }
+    name: { $regex: key, $options: '$i' },
   });
   return res.status(200).json({
-    searchResult
-  })
-}
+    searchResult,
+  });
+};
 exports.deleteReview = (req, res) => {
   const { idReview, idProduct } = req.body;
   Product.findByIdAndUpdate(
@@ -47,17 +55,20 @@ exports.deleteReview = (req, res) => {
     },
     {
       $pull: { reviews: { _id: idReview } },
-    },{new:true}
-  ).exec((err, product) => {
-    if (err) {
-      return res.status(400).json({ err });
-    }
-    if (product) {
-      res.status(200).json({
-        product,
-      });
-    }
-  });
+    },
+    { new: true }
+  )
+    .populate('reviews.userID')
+    .exec((err, product) => {
+      if (err) {
+        return res.status(400).json({ err });
+      }
+      if (product) {
+        res.status(200).json({
+          product,
+        });
+      }
+    });
 };
 exports.getNewProductList = (req, res) => {
   Product.find({})
@@ -71,7 +82,7 @@ exports.getNewProductList = (req, res) => {
       }
       if (data) {
         return res.status(200).json({
-          data,
+          newProducts: data,
         });
       }
     });
@@ -82,7 +93,7 @@ exports.getRandomProduct = (req, res) => {
     .exec((err, products) => {
       if (err) {
         return res.status(400).json({
-          err: "ERROR!",
+          err: 'ERROR!',
         });
       }
       if (products) {
@@ -105,18 +116,21 @@ exports.addReview = (req, res) => {
     },
     {
       $push: {
-        reviews: reviewObject,
+        reviews: {
+          $each: [reviewObject],
+          $position: 0,
+        },
       },
     },
     {
       new: true,
     }
   )
-    .populate("reviews.userID")
+    .populate('reviews.userID')
     .exec((err, data) => {
       if (err || !data) {
         return res.status(400).json({
-          message: "Có lỗi xảy ra",
+          message: 'Có lỗi xảy ra',
         });
       }
       return res.status(200).json({
@@ -125,7 +139,7 @@ exports.addReview = (req, res) => {
     });
 };
 exports.getProductBySlug = (req, res) => {
-  const { slug } = req.params;
+  const { slug, priceRange } = req.params;
   Category.findOne({ slug: slug }).exec((err, category) => {
     if (err) {
       return res.status(400).json({ err });
@@ -135,18 +149,30 @@ exports.getProductBySlug = (req, res) => {
         if (err) {
           return res.status(400).json({ err });
         }
-        if (products.length > 0) {
-          res.status(200).json({
-            products,
-            productByPrice: {
-              under10M: products.filter((product) => product.price <= 10000000),
-              under30M: products.filter(
-                (product) =>
-                  product.price > 10000000 && product.price <= 30000000
-              ),
-              over30M: products.filter((product) => product.price > 30000000),
-            },
-          });
+        if (products.length >= 0) {
+          switch (priceRange) {
+            case 'under10M':
+              return res.status(200).json({
+                listProduct: products.filter(
+                  (product) => product.price <= 10000000
+                ),
+              });
+            case 'under30M':
+              return res.status(200).json({
+                listProduct: products.filter(
+                  (product) =>
+                    product.price > 10000000 && product.price <= 30000000
+                ),
+              });
+            case 'over30M':
+              return res.status(200).json({
+                listProduct: products.filter(
+                  (product) => product.price > 30000000
+                ),
+              });
+            case 'all':
+              return res.status(200).json({ listProduct: products });
+          }
         }
       });
     }

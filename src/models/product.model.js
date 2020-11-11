@@ -1,4 +1,5 @@
-const mongoose = require("mongoose");
+//collection Product
+const mongoose = require('mongoose');
 const productSchema = new mongoose.Schema(
   {
     name: {
@@ -6,37 +7,45 @@ const productSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    //đường dẫn hiễn thị trên thanh url của product đó
     slug: {
       type: String,
       required: true,
       unique: true,
     },
+    //giá
     price: {
       type: Number,
       required: true,
     },
+    //mô tả
     description: {
       type: String,
       required: true,
       trim: true,
     },
+    //số lượng
     quantity: {
       type: Number,
       required: true,
     },
-    offer: { type: Number },
-    productImages: [{ img: { type: String } }],
+    //danh sách ảnh của sản phẩm
 
+    productImages: [{ img: { type: String } }],
+    //danh sách đánh giá của client
     reviews: [
       {
+        //thông tin client
         userID: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
+          ref: 'User',
         },
+        //nội dung đánh giá
         review: {
           type: String,
           required: true,
         },
+        //số sao đánh giá
         rating: {
           type: Number,
           required: true,
@@ -44,19 +53,23 @@ const productSchema = new mongoose.Schema(
         },
       },
     ],
+    //danh mục của sản phẩm đó
     category: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Category",
+      ref: 'Category',
       required: true,
     },
+    //user tạo sản phẩm
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
       required: true,
     },
+    //ngày update
     updateAt: Date,
   },
-
+  //thêm các thuộc tính ngày tạo và ngày update
   { timestamps: true }
 );
-module.exports = mongoose.model("Product", productSchema);
+//tạo model
+module.exports = mongoose.model('Product', productSchema);

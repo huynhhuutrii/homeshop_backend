@@ -1,4 +1,5 @@
-const mongoose = require("mongoose");
+//collect category
+const mongoose = require('mongoose');
 const categorySchema = new mongoose.Schema(
   {
     name: {
@@ -6,21 +7,22 @@ const categorySchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+
+    //đường dẫn của danh mục trên url
     slug: {
       type: String,
       required: true,
       unique: true,
     },
-    type: {
-      type: String
-    },
+    //ảnh của danh mục
     categoryImage: {
-      type: String
+      type: String,
     },
+    //danh mục cha của danh mục
     parentID: {
       type: String,
     },
   },
   { timestamps: true }
 );
-module.exports = mongoose.model("Category", categorySchema);
+module.exports = mongoose.model('Category', categorySchema);

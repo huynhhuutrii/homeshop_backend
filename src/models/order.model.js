@@ -1,10 +1,13 @@
-const mongoose = require("mongoose");
+//collection Order
+const mongoose = require('mongoose');
 const orderSchema = new mongoose.Schema(
   {
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    //order user tham chiếu đến collection user
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    //nguoi nhan hang
     receiver: {
       type: String,
-      required: true
+      required: true,
     },
     phone: {
       type: String,
@@ -16,21 +19,30 @@ const orderSchema = new mongoose.Schema(
     },
     totalPrice: {
       type: Number,
-      required: true
+      required: true,
     },
     status: {
       type: String,
-      enum: ["Chưa thanh toán", "Đã thanh toán", "Đã hủy"],
-      default: "Chưa thanh toán"
+      enum: ['Chưa thanh toán', 'Đã thanh toán', 'Đã hủy'],
+      default: 'Chưa thanh toán',
     },
+
+    method: {
+      type: String,
+      enum: ['Khi giao hàng', 'trực tuyến'],
+      default: 'Khi giao hàng',
+    },
+    //ghi chu
     note: {
-      type: String
+      type: String,
     },
+    //Các product mà user đã order
     cartItems: [
       {
+        //thông tin product tham chiếu đến collection
         product: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "Product",
+          ref: 'Product',
           required: true,
         },
         name: {
@@ -47,4 +59,5 @@ const orderSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-module.exports = mongoose.model("Order", orderSchema);
+//tạo model
+module.exports = mongoose.model('Order', orderSchema);
