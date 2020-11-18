@@ -14,6 +14,8 @@ const {
   updateReview,
   searchProduct,
   getAllProduct,
+  deleteProduct,
+  updateProduct,
 } = require('../controllers/product.controller');
 const shortid = require('shortid');
 const multer = require('multer');
@@ -43,4 +45,12 @@ router.put('/product/review/delete', deleteReview);
 router.patch('/product/review/update', updateReview);
 router.post('/product/search', searchProduct);
 router.get('/product/all', getAllProduct);
+router.post('/product/delete', requireLogin, adminMidleware, deleteProduct);
+router.put(
+  '/product/update',
+  requireLogin,
+  adminMidleware,
+  upload.array('productImage'),
+  updateProduct
+);
 module.exports = router;

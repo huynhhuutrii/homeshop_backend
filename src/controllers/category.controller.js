@@ -1,6 +1,7 @@
-const Category = require("../models/category.model");
-const slugify = require("slugify");
-const shortId = require("shortid");
+const Category = require('../models/category.model');
+const Product = require('../models/product.model');
+const slugify = require('slugify');
+const shortId = require('shortid');
 function createCagories(categories, parentID = null) {
   const listCategory = [];
   let category;
@@ -21,48 +22,40 @@ function createCagories(categories, parentID = null) {
   }
   return listCategory;
 }
-exports.deleteCategories = async (req, res) => {
-  const { ids } = req.body.payload;
-  const deleteCategories = [];
-  for (let i = 0; i < ids.length; i++) {
-    const deleteCategory = await Category.findOneAndDelete({ _id: ids[i]._id });
-    deleteCategories.push(deleteCategory)
-  }
-  if (deleteCategories.length == ids.length) {
-    res.status(201).json({ message: "đã xóa danh mục" })
-  } else {
-    res.status(400).json({ message: "xóa danh mục thất bại" })
-  }
-}
-exports.updateCategory = async (req, res) => {
-  const { _id, name, parentID, type } = req.body;
-  const updateCategories = [];
-  if (name instanceof Array) {
-    for (let i = 0; i < name.length; i++) {
-      const category = {
-        name: name[i],
-        type: type[i]
-      }
-      if (parentID[i] !== "") {
-        category.parentID = parentID[i];
-
-      }
-      updateCategory = await Category.findOneAndUpdate({ _id: _id[i] }, category, { new: true })
-      updateCategories.push(updateCategory);
+exports.deleteCategory = async (req, res) => {
+  const id = req.body.id;
+  try {
+    const cat = await Category.findOne({ _id: id });
+    if (!cat) {
+      return res.status(400).json({ message: 'Not found' });
     }
-    return res.status(201).json({ updateCategories })
-  } else {
-    const category = {
-      name, type
+    if (cat.parentID && cat.parentID !== id) {
+      return res.status(400).json({ message: 'Not found' });
+    } else {
+      await Category.deleteOne({ _id: cat._id });
+      await Category.deleteMany({ parentID: cat._id });
+      await Product.deleteMany({ category: cat._id });
     }
-    if (parentID !== "") {
-      category.parentID = parentID;
-    }
-    updateCategories = await Category.findOneAndUpdate({ _id: _id }, category, { new: true })
-
-    return res.status(201).json({ updateCategories })
+    return res.status(200).json({ message: 'Xóa thành công' });
+  } catch (err) {
+    return res.status(400).json({ message: err.message });
   }
-}
+};
+exports.updateCategory = (req, res) => {
+  const cat = req.body;
+  Category.findOneAndUpdate({ _id: cat._id }, cat, {
+    new: true,
+  }).exec((err, category) => {
+    if (err) {
+      return res.status(400).json({ err });
+    }
+    if (category) {
+      return res.status(201).json({
+        message: 'cập nhật danh mục thành công',
+      });
+    }
+  });
+};
 exports.createCategory = (req, res) => {
   const categoryObject = {
     name: req.body.name,
@@ -72,7 +65,8 @@ exports.createCategory = (req, res) => {
     categoryObject.parentID = req.body.parentID;
   }
   if (req.file) {
-    categoryObject.categoryImage = process.env.IMAGE_URL + "/" + req.file.filename;
+    categoryObject.categoryImage =
+      process.env.IMAGE_URL + '/' + req.file.filename;
   }
   const newCat = new Category(categoryObject);
   newCat.save((err, category) => {
@@ -93,6 +87,7 @@ exports.getCategories = (req, res) => {
     if (err) return res.status(400).json({ err });
     if (categories) {
       const listCategory = createCagories(categories);
+
       return res.status(200).json({
         listCategory,
       });

@@ -1,5 +1,5 @@
-const Category = require("../../models/category.model");
-const Product = require("../../models/product.model");
+const Category = require('../../models/category.model');
+const Product = require('../../models/product.model');
 
 function createCagories(categories, parentID = null) {
   const listCategory = [];
@@ -24,12 +24,11 @@ function createCagories(categories, parentID = null) {
 exports.initialData = async (req, res) => {
   const categories = await Category.find({}).exec();
   const products = await Product.find({})
-    .select("_id name price quantity slug description productImages category")
-    .populate("category")
+    .select('_id name price quantity slug description productImages category')
+    .populate('category')
     .exec();
   res.status(200).json({
     categories: createCagories(categories),
-    products
-  })
-
-}
+    products,
+  });
+};

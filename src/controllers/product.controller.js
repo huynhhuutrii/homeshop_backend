@@ -2,6 +2,7 @@ const Product = require('../models/product.model');
 const slugify = require('slugify');
 const shortid = require('shortid');
 const Category = require('../models/category.model');
+
 exports.getAllProduct = async (req, res) => {
   Product.find({}).exec((err, products) => {
     if (err) {
@@ -11,6 +12,56 @@ exports.getAllProduct = async (req, res) => {
       return res.status(200).json({ products });
     }
   });
+};
+exports.deleteProduct = (req, res) => {
+  const { id } = req.body;
+  Product.findByIdAndDelete({ _id: id }).exec((err, data) => {
+    if (err) {
+      return res.status(400).json({ err: err.message });
+    }
+    if (data) {
+      return res.status(200).json({ data });
+    }
+  });
+};
+exports.updateProduct = async (req, res) => {
+  const { _id, name, price, quantity, description, category } = req.body;
+  var productImages = [];
+  var slug = slugify(name);
+  if (req.files && req.files.length > 0) {
+    productImages = req.files.map((file) => {
+      return { img: file.filename };
+    });
+  }
+  try {
+    const intiProduct = await Product.findOne({ _id: _id }, (err, data) => {
+      if (err) {
+        return res.status(400).json({ err: err.message });
+      }
+    });
+    const intiProductImages = intiProduct.productImages;
+    const product = await Product.findOneAndUpdate(
+      { _id: _id },
+      {
+        $set: {
+          name: name,
+          slug: slug,
+          price: price,
+          description: description,
+          category: category,
+          quantity: quantity,
+          productImages:
+            productImages.length > 0 ? productImages : intiProductImages,
+        },
+      },
+      { new: true }
+    )
+      .populate('category')
+      .exec();
+    return res.status(200).json({ product });
+  } catch (err) {
+    return res.status(400).json({ err: err.message });
+  }
 };
 exports.getDetailProduct = (req, res) => {
   const { id } = req.params;
@@ -25,6 +76,7 @@ exports.getDetailProduct = (req, res) => {
       }
     });
 };
+
 exports.updateReview = async (req, res) => {
   const { idReview, idProduct, data } = req.body;
   let product = await Product.findOne({ _id: idProduct });
@@ -178,7 +230,7 @@ exports.getProductBySlug = (req, res) => {
     }
   });
 };
-exports.createProduct = (req, res) => {
+exports.createProduct = async (req, res) => {
   const { name, price, description, category, quantity } = req.body;
   var productImages = [];
   if (req.files.length > 0) {
@@ -197,11 +249,20 @@ exports.createProduct = (req, res) => {
     quantity,
     createdBy: req.user._id,
   });
-
-  product.save((err, product) => {
-    if (err) return res.status(400).json({ err });
-    if (product) {
-      res.status(201).json({ product });
-    }
+  const newProduct = await product.save();
+  if (!newProduct) {
+    return res.status(400).json({ message: 'Có lỗi xảy ra' });
+  }
+  const data = await Product.findOne({ _id: newProduct._id })
+    .populate('category')
+    .exec();
+  return res.status(201).json({
+    product: data,
   });
+  // product.save((err, product) => {
+  //   if (err) return res.status(400).json({ err: err.message });
+  //   if (product) {
+  //     res.status(201).json({ product });
+  //   }
+  // });
 };
