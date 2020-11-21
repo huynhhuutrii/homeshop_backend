@@ -1,11 +1,11 @@
-const User = require("../models/user.model");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
+const User = require('../models/user.model');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 exports.register = (req, res) => {
   User.findOne({ email: req.body.email }).exec(async (err, user) => {
     if (user) {
       return res.status(400).json({
-        message: "user ivalid",
+        message: 'user ivalid',
       });
     }
     const { name, username, email, password } = req.body;
@@ -20,12 +20,12 @@ exports.register = (req, res) => {
     newUser.save((err, data) => {
       if (err) {
         return res.status(400).json({
-          message: "Error!",
+          message: 'Error!',
         });
       }
       if (data) {
         return res.status(201).json({
-          message: "tạo tài khoảng thành công",
+          message: 'tạo tài khoảng thành công',
         });
       }
     });
@@ -36,14 +36,15 @@ exports.login = (req, res) => {
     if (err) return res.status(400).json({ error });
     if (user) {
       if (user.authenticate(req.body.password)) {
-        const token = jwt.sign({ _id: user._id, role: user.role }, "abc", {
-          expiresIn: "5d",
+        const token = jwt.sign({ _id: user._id, role: user.role }, 'abc', {
+          expiresIn: '5d',
         });
-        const { _id, username, email, role } = user;
+        const { _id, name, username, email, role } = user;
         res.status(200).json({
           token,
           user: {
             _id,
+            name,
             username,
             email,
             role,
@@ -51,11 +52,11 @@ exports.login = (req, res) => {
         });
       } else {
         return res.status(400).json({
-          message: "sai mật khẩu",
+          message: 'sai mật khẩu',
         });
       }
     } else {
-      return res.status(400).json({ message: "tài khoản không tồn tại" });
+      return res.status(400).json({ message: 'tài khoản không tồn tại' });
     }
   });
 };

@@ -13,6 +13,10 @@ const orderSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    email: {
+      type: String,
+      required: true,
+    },
     address: {
       type: String,
       required: true,
@@ -26,7 +30,6 @@ const orderSchema = new mongoose.Schema(
       enum: ['Chưa thanh toán', 'Đã thanh toán', 'Đã hủy'],
       default: 'Chưa thanh toán',
     },
-
     method: {
       type: String,
       enum: ['Khi giao hàng', 'trực tuyến'],

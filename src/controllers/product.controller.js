@@ -4,14 +4,16 @@ const shortid = require('shortid');
 const Category = require('../models/category.model');
 
 exports.getAllProduct = async (req, res) => {
-  Product.find({}).exec((err, products) => {
-    if (err) {
-      return res.status(400).json({ err });
-    }
-    if (products) {
-      return res.status(200).json({ products });
-    }
-  });
+  Product.find({})
+    .populate('category')
+    .exec((err, products) => {
+      if (err) {
+        return res.status(400).json({ err });
+      }
+      if (products) {
+        return res.status(200).json({ products });
+      }
+    });
 };
 exports.deleteProduct = (req, res) => {
   const { id } = req.body;
