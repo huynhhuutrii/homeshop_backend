@@ -56,7 +56,12 @@ exports.updateCategory = (req, res) => {
     }
   });
 };
-exports.createCategory = (req, res) => {
+exports.createCategory = async (req, res) => {
+  const check = await Category.findOne({ name: req.body.name });
+  if (check) {
+    return res.status(400).json({ errors: 'Danh mục đã tồn tại' });
+  }
+
   const categoryObject = {
     name: req.body.name,
     slug: `${shortId.generate()}-${slugify(req.body.name)}`,
@@ -87,7 +92,6 @@ exports.getCategories = (req, res) => {
     if (err) return res.status(400).json({ err });
     if (categories) {
       const listCategory = createCagories(categories);
-
       return res.status(200).json({
         listCategory,
       });

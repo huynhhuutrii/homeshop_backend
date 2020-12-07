@@ -1,10 +1,10 @@
 const Product = require('../models/product.model');
 const slugify = require('slugify');
-const shortid = require('shortid');
 const Category = require('../models/category.model');
 
 exports.getAllProduct = async (req, res) => {
   Product.find({})
+    .sort({ createdAt: -1 })
     .populate('category')
     .exec((err, products) => {
       if (err) {
@@ -65,10 +65,45 @@ exports.updateProduct = async (req, res) => {
     return res.status(400).json({ err: err.message });
   }
 };
+exports.getReviewOfUser = (req, res) => {
+  console.log(req.user._id);
+  Product.find({ 'reviews.userID': req.user._id }).exec((err, data) => {
+    if (err) {
+      return res.status({ errors: 'Bạn chưa đánh giá' });
+    }
+    if (data) {
+      return res.status(200).json({ product: data });
+    }
+  });
+};
+exports.getReview = async (req, res) => {
+  const allReview = [];
+  const products = await Product.find({})
+    .populate('category')
+    .populate('reviews.userID')
+    .exec();
+  for (let product of products) {
+    if (product.reviews.length > 0) {
+      for (let review of product.reviews) {
+        allReview.push({
+          productID: product._id,
+          productName: product.name,
+          categoryName: product.category.name,
+          userReview: review,
+        });
+      }
+    }
+  }
+  if (!allReview) {
+    return res.status(400).json({ message: 'chưa có đánh giá' });
+  }
+  return res.status(200).json({ allReview });
+};
 exports.getDetailProduct = (req, res) => {
   const { id } = req.params;
   Product.findOne({ _id: id })
     .populate('reviews.userID')
+    .populate('category')
     .exec((err, data) => {
       if (err) return res.status(400).json({ err });
       if (data) {
@@ -103,6 +138,7 @@ exports.searchProduct = async (req, res) => {
 };
 exports.deleteReview = (req, res) => {
   const { idReview, idProduct } = req.body;
+  console.log(req.body);
   Product.findByIdAndUpdate(
     {
       _id: idProduct,
@@ -234,6 +270,10 @@ exports.getProductBySlug = (req, res) => {
 };
 exports.createProduct = async (req, res) => {
   const { name, price, description, category, quantity } = req.body;
+  const check = await Product.findOne({ name: name });
+  if (check) {
+    return res.status(400).json({ errors: 'Sản phẩm đã tồn tại' });
+  }
   var productImages = [];
   if (req.files.length > 0) {
     productImages = req.files.map((file) => {

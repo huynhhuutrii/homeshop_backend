@@ -5,7 +5,7 @@ exports.register = (req, res) => {
   User.findOne({ email: req.body.email }).exec(async (err, user) => {
     if (user) {
       return res.status(400).json({
-        message: 'user ivalid',
+        errors: 'user ivalid',
       });
     }
     const { name, username, email, password } = req.body;
@@ -20,7 +20,7 @@ exports.register = (req, res) => {
     newUser.save((err, data) => {
       if (err) {
         return res.status(400).json({
-          message: 'Error!',
+          errors: 'Error!',
         });
       }
       if (data) {
@@ -53,13 +53,34 @@ exports.login = (req, res) => {
         });
       } else {
         return res.status(400).json({
-          message: 'sai mật khẩu',
+          errors: 'sai mật khẩu',
         });
       }
     } else {
-      return res.status(400).json({ message: 'tài khoản không tồn tại' });
+      return res.status(400).json({ errors: 'tài khoản không tồn tại' });
     }
   });
+};
+exports.getAllUser = (req, res) => {
+  User.find({}).exec((err, data) => {
+    if (err) {
+      return res.status(400).json({ message: err.message });
+    }
+    if (data) {
+      return res.status(200).json({ users: data });
+    }
+  });
+};
+exports.deleteUser = async (req, res) => {
+  const { id } = req.body;
+  try {
+    const users = await User.deleteOne({ _id: id });
+    if (users) {
+      return res.status(200).json({ message: 'Đã xóa người dùng thành công' });
+    }
+  } catch (err) {
+    return res.status(400).json({ err: err.message });
+  }
 };
 exports.logout = (req, res) => {
   res.clearCookie('token');
