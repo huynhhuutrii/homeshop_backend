@@ -5,7 +5,7 @@ exports.register = (req, res) => {
   User.findOne({ email: req.body.email }).exec(async (err, user) => {
     if (user) {
       return res.status(400).json({
-        errors: 'user ivalid',
+        errors: 'Email đã có người sử dụng',
       });
     }
     const { name, username, email, password } = req.body;
@@ -25,7 +25,7 @@ exports.register = (req, res) => {
       }
       if (data) {
         return res.status(201).json({
-          message: 'tạo tài khoảng thành công',
+          message: 'Tạo tài khoảng thành công',
         });
       }
     });
@@ -40,7 +40,7 @@ exports.login = (req, res) => {
           expiresIn: '2d',
         });
         const { _id, name, username, email, role } = user;
-        res.cookie('token', token, { expiresIn: '2h' });
+
         res.status(200).json({
           token,
           user: {
@@ -53,18 +53,18 @@ exports.login = (req, res) => {
         });
       } else {
         return res.status(400).json({
-          errors: 'sai mật khẩu',
+          errors: 'Sai mật khẩu',
         });
       }
     } else {
-      return res.status(400).json({ errors: 'tài khoản không tồn tại' });
+      return res.status(400).json({ errors: 'Tài khoản không tồn tại' });
     }
   });
 };
 exports.getAllUser = (req, res) => {
   User.find({}).exec((err, data) => {
     if (err) {
-      return res.status(400).json({ message: err.message });
+      return res.status(400).json({ errors: err.message });
     }
     if (data) {
       return res.status(200).json({ users: data });
@@ -83,7 +83,6 @@ exports.deleteUser = async (req, res) => {
   }
 };
 exports.logout = (req, res) => {
-  res.clearCookie('token');
   res.status(200).json({
     message: 'Đăng xuất thành công',
   });

@@ -9,6 +9,7 @@ const {
   deleteOrder,
   searchOrder,
   purchasedProduct,
+  cancelOrderByCus,
 } = require('../controllers/order.controller');
 const { requireLogin } = require('../common');
 
@@ -19,4 +20,5 @@ router.put('/order/update', updateOrder);
 router.post('/order/delete', deleteOrder);
 router.post('/order/search', searchOrder);
 router.post('/review/purchased', requireLogin, purchasedProduct);
+router.put('/order/cancel', cancelOrderByCus);
 module.exports = router;

@@ -1,4 +1,5 @@
 const Order = require('../models/order.model');
+const Product = require('../models/product.model');
 
 exports.getOrders = async (req, res) => {
   try {
@@ -15,15 +16,32 @@ exports.getOrders = async (req, res) => {
     });
   }
 };
-exports.updateOrder = async (req, res) => {
-  const { idOrder } = req.body;
+const handleUpdateProduct = (cartItems) => {
+  cartItems.forEach(async (item) => {
+    let result = await Product.findOne({ _id: item.product }).select(
+      '_id quantity'
+    );
+    if (result) {
+      result.quantity = result.quantity - item.quantity;
+    }
+    await Product.updateOne(
+      { _id: item.product._id },
+      {
+        $set: {
+          quantity: result.quantity,
+        },
+      },
+      { new: true }
+    );
+  });
+};
+exports.cancelOrderByCus = (req, res) => {
+  const id = req.body.id;
   Order.findOneAndUpdate(
-    {
-      _id: idOrder,
-    },
+    { _id: id },
     {
       $set: {
-        status: 'Đã thanh toán',
+        status: 'Đã hủy',
       },
     },
     {
@@ -31,12 +49,46 @@ exports.updateOrder = async (req, res) => {
     }
   ).exec((err, data) => {
     if (err) {
-      return res.status(400).json({ err: err.message });
+      return res.status(400).json({ errors: err.message });
     }
-    if (data) {
-      return res.status(200).json({ updateOrder: data });
-    }
+    return res.status(200).json({ order: data });
   });
+};
+exports.updateOrder = async (req, res) => {
+  const { idOrder } = req.body;
+  Order.findOne({ _id: idOrder })
+    .then((result) => {
+      if (!result) {
+        return res.status(400).json({ errors: 'Không tìm thấy order!!' });
+      }
+      if (result) {
+        const { cartItems } = result;
+        handleUpdateProduct(cartItems);
+        Order.findOneAndUpdate(
+          {
+            _id: idOrder,
+          },
+          {
+            $set: {
+              status: 'Đã thanh toán',
+            },
+          },
+          {
+            new: true,
+          }
+        ).exec((err, orders) => {
+          if (err) {
+            return res.status(400).json({ err: err.message });
+          }
+          if (orders) {
+            return res.status(200).json({ listOrder: orders });
+          }
+        });
+      }
+    })
+    .catch((err) => {
+      return res.status(400).json({ err: err.message });
+    });
 };
 exports.purchasedProduct = async (req, res) => {
   const orders = await Order.find({

@@ -5,7 +5,7 @@ exports.register = (req, res) => {
   User.findOne({ email: req.body.email }).exec(async (err, user) => {
     if (user) {
       return res.status(400).json({
-        message: 'user ivalid',
+        errors: 'Email đã có người sử dụng',
       });
     }
     const { name, username, email, password } = req.body;
@@ -20,12 +20,12 @@ exports.register = (req, res) => {
     newUser.save((err, data) => {
       if (err) {
         return res.status(400).json({
-          message: 'Error!',
+          errors: 'Tạo tài khoản thất bại',
         });
       }
       if (data) {
         return res.status(201).json({
-          message: 'tạo tài khoảng thành công',
+          message: 'Tạo tài khoảng thành công',
         });
       }
     });
@@ -52,11 +52,11 @@ exports.login = (req, res) => {
         });
       } else {
         return res.status(400).json({
-          message: 'sai mật khẩu',
+          errors: 'sai mật khẩu',
         });
       }
     } else {
-      return res.status(400).json({ message: 'tài khoản không tồn tại' });
+      return res.status(400).json({ errors: 'Tài khoản không tồn tại' });
     }
   });
 };
