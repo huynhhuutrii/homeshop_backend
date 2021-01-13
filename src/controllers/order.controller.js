@@ -106,7 +106,7 @@ exports.purchasedProduct = async (req, res) => {
       products.push(item.product);
     }
   }
-  return res.status(200).json({ products });
+  return res.status(200).json({ products: [...new Set(products)] });
 };
 exports.getAllOrder = async (req, res) => {
   try {

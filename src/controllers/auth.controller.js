@@ -1,6 +1,7 @@
 const User = require('../models/user.model');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+
 exports.register = (req, res) => {
   User.findOne({ email: req.body.email }).exec(async (err, user) => {
     if (user) {

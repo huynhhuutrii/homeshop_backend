@@ -12,8 +12,6 @@ const path = require('path');
 const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'uploads')));
-
-mongoose.set('useFindAndModify', false);
 env.config();
 mongoose.connect(
   'mongodb://localhost:27017/ecommerce-tlcn',
@@ -30,7 +28,6 @@ mongoose.connect(
     console.log('Mongo connected');
   }
 );
-
 app.use(cors());
 app.use('/api', userRouters);
 app.use('/api', adminRoutes);

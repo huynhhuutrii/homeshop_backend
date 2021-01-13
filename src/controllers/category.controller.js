@@ -4,7 +4,7 @@ const slugify = require('slugify');
 const shortId = require('shortid');
 function createCagories(categories, parentID = null) {
   const listCategory = [];
-  let category;
+  let category; //danh muc trong list danh mục
   if (parentID == null) {
     category = categories.filter((cat) => cat.parentID == undefined);
   } else {

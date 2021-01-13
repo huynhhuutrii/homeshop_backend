@@ -14,10 +14,10 @@ const {
 } = require('../../controllers/admin/auth.controller');
 const { requireLogin, adminMidleware } = require('../../common');
 
-module.exports = router;
-
+//http method
 router.post('/admin/register', validateRegister, isValidated, register);
 router.get('/user/all', requireLogin, adminMidleware, getAllUser);
 router.post('/user/delete', requireLogin, adminMidleware, deleteUser);
 router.post('/admin/login', validateLogin, isValidated, login);
 router.post('/admin/logout', logout);
+module.exports = router;
